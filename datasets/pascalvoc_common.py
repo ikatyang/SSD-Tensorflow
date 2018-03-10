@@ -24,7 +24,7 @@ slim = tf.contrib.slim
 VOC_LABELS = {
     'none': (0, 'Background'),
     'plane': (1, 'Custom'),
-    'surface': (1, 'Custom'),
+    'surface': (2, 'Custom'),
     # 'aeroplane': (1, 'Vehicle'),
     # 'bicycle': (2, 'Vehicle'),
     # 'bird': (3, 'Animal'),
