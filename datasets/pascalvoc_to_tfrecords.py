@@ -14,8 +14,8 @@
 # ==============================================================================
 """Converts Pascal VOC data to TFRecords file format with Example protos.
 
-The raw Pascal VOC data set is expected to reside in JPEG files located in the
-directory 'JPEGImages'. Similarly, bounding box annotations are supposed to be
+The raw Pascal VOC data set is expected to reside in PNG files located in the
+directory 'PNGImages'. Similarly, bounding box annotations are supposed to be
 stored in the 'Annotation directory'
 
 This TensorFlow script converts the training and evaluation data into
@@ -25,11 +25,11 @@ Each validation TFRecord file contains ~500 records. Each training TFREcord
 file contains ~1000 records. Each record within the TFRecord file is a
 serialized Example proto. The Example proto contains the following fields:
 
-    image/encoded: string containing JPEG encoded image in RGB colorspace
+    image/encoded: string containing PNG encoded image in Depth colorspace
     image/height: integer, image height in pixels
     image/width: integer, image width in pixels
-    image/channels: integer, specifying the number of channels, always 3
-    image/format: string, specifying the format, always'JPEG'
+    image/channels: integer, specifying the number of channels, always 1
+    image/format: string, specifying the format, always'PNG'
 
 
     image/object/bbox/xmin: list of float specifying the 0+ human annotated
@@ -60,7 +60,7 @@ from datasets.pascalvoc_common import VOC_LABELS
 
 # Original dataset organisation.
 DIRECTORY_ANNOTATIONS = 'Annotations/'
-DIRECTORY_IMAGES = 'JPEGImages/'
+DIRECTORY_IMAGES = 'PNGImages/'
 
 # TFRecords convertion parameters.
 RANDOM_SEED = 4242
@@ -71,15 +71,15 @@ def _process_image(directory, name):
     """Process a image and annotation file.
 
     Args:
-      filename: string, path to an image file e.g., '/path/to/example.JPG'.
+      filename: string, path to an image file e.g., '/path/to/example.PNG'.
       coder: instance of ImageCoder to provide TensorFlow image coding utils.
     Returns:
-      image_buffer: string, JPEG encoding of RGB image.
+      image_buffer: string, PNG encoding of Depth image.
       height: integer, image height in pixels.
       width: integer, image width in pixels.
     """
     # Read the image file.
-    filename = directory + DIRECTORY_IMAGES + name + '.jpg'
+    filename = directory + DIRECTORY_IMAGES + name + '.png'
     image_data = tf.gfile.FastGFile(filename, 'r').read()
 
     # Read the XML annotation file.
@@ -126,7 +126,7 @@ def _convert_to_example(image_data, labels, labels_text, bboxes, shape,
     """Build an Example proto for an image example.
 
     Args:
-      image_data: string, JPEG encoding of RGB image;
+      image_data: string, PNG encoding of Depth image;
       labels: list of integers, identifier for the ground truth;
       labels_text: list of strings, human-readable labels;
       bboxes: list of bounding boxes; each box is a list of integers;
@@ -146,7 +146,7 @@ def _convert_to_example(image_data, labels, labels_text, bboxes, shape,
         [l.append(point) for l, point in zip([ymin, xmin, ymax, xmax], b)]
         # pylint: enable=expression-not-assigned
 
-    image_format = b'JPEG'
+    image_format = b'PNG'
     example = tf.train.Example(features=tf.train.Features(feature={
             'image/height': int64_feature(shape[0]),
             'image/width': int64_feature(shape[1]),
