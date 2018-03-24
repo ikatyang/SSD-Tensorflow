@@ -38,6 +38,8 @@ _R_MEAN = 123.
 _G_MEAN = 117.
 _B_MEAN = 104.
 
+_D_MEAN = 675.
+
 # Some training pre-processing parameters.
 BBOX_CROP_OVERLAP = 0.5         # Minimum overlap to keep a bbox after cropping.
 MIN_OBJECT_COVERED = 0.25
@@ -86,7 +88,7 @@ def np_image_unwhitened(image, means=[_R_MEAN, _G_MEAN, _B_MEAN], to_int=True):
     img = np.copy(image)
     img += np.array(means, dtype=img.dtype)
     if to_int:
-        img = img.astype(np.uint8)
+        img = img.astype(np.uint16)
     return img
 
 
@@ -290,7 +292,7 @@ def preprocess_for_train(image, labels, bboxes,
 
         # Rescale to VGG input scale.
         image = dst_image * 255.
-        image = tf_image_whitened(image, [_R_MEAN, _G_MEAN, _B_MEAN])
+        image = tf_image_whitened(image, [_D_MEAN])
         # Image data format.
         if data_format == 'NCHW':
             image = tf.transpose(image, perm=(2, 0, 1))
@@ -316,7 +318,7 @@ def preprocess_for_eval(image, labels, bboxes,
             raise ValueError('Input must be of size [height, width, C>0]')
 
         image = tf.to_float(image)
-        image = tf_image_whitened(image, [_R_MEAN, _G_MEAN, _B_MEAN])
+        image = tf_image_whitened(image, [_D_MEAN])
 
         # Add image rectangle to bboxes.
         bbox_img = tf.constant([[0., 0., 1., 1.]])
