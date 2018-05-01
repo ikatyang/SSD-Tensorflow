@@ -31,6 +31,15 @@ from preprocessing import preprocessing_factory
 
 slim = tf.contrib.slim
 
+def flatten(x): 
+    result = [] 
+    for el in x: 
+        if isinstance(el, tuple): 
+            result.extend(flatten(el))
+        else: 
+            result.append(el) 
+    return result
+
 # =========================================================================== #
 # Some default EVAL parameters
 # =========================================================================== #
@@ -334,7 +343,7 @@ def main(_):
                 checkpoint_dir=checkpoint_path,
                 logdir=FLAGS.eval_dir,
                 num_evals=num_batches,
-                eval_op=list(names_to_updates.values()),
+                eval_op=flatten(list(names_to_updates.values())),
                 variables_to_restore=variables_to_restore,
                 eval_interval_secs=60,
                 max_number_of_evaluations=np.inf,
